@@ -310,6 +310,9 @@ function CodeInstance(result::InferenceResult, @nospecialize(inferred_result::An
         elseif isa(result_type, InterConditional)
             rettype_const = result_type
             const_flags = 0x2
+        elseif isa(result_type, InterMustAlias)
+            rettype_const = result_type
+            const_flags = 0x2
         else
             rettype_const = nothing
             const_flags = 0x00
@@ -559,7 +562,7 @@ end
 function visit_slot_load!(sl::SlotNumber, vtypes::VarTable, sv::InferenceState, undefs::Array{Bool,1})
     id = slot_id(sl)
     s = vtypes[id]
-    vt = widenconditional(ignorelimited(s.typ))
+    vt = widenslotwrappers(ignorelimited(s.typ))
     if s.undef
         # find used-undef variables
         undefs[id] = true
@@ -614,7 +617,7 @@ function type_annotate!(sv::InferenceState, run_optimizer::Bool)
     ssavaluetypes = src.ssavaluetypes::Vector{Any}
     for j = 1:length(ssavaluetypes)
         t = ssavaluetypes[j]
-        ssavaluetypes[j] = t === NOT_FOUND ? Union{} : widenconditional(t)
+        ssavaluetypes[j] = t === NOT_FOUND ? Union{} : widenslotwrappers(t)
     end
 
     # compute the required type for each slot
@@ -789,6 +792,8 @@ function typeinf_edge(interp::AbstractInterpreter, method::Method, @nospecialize
             elseif rettype <: Core.OpaqueClosure && isa(rettype_const, PartialOpaque)
                 return rettype_const, mi
             elseif isa(rettype_const, InterConditional)
+                return rettype_const, mi
+            elseif isa(rettype_const, InterMustAlias)
                 return rettype_const, mi
             else
                 return Const(rettype_const), mi
