@@ -295,6 +295,7 @@ uint64_t *jl_cumulative_compile_time = NULL;
 // type of the thread id.
 JL_DLLEXPORT int16_t jl_threadid(void)
 {
+    assert((unsigned)jl_current_task->tid < (unsigned)jl_n_threads);
     return jl_current_task->tid;
 }
 
