@@ -38,7 +38,7 @@ else # !windows
     const DEV_URANDOM = Ref{IOStream}()
 
     show(io::IO, rd::RandomDevice) =
-        print(io, RandomDevice,  rd.unlimited ? "()" : "(unlimited=false)")
+        print(io, RandomDevice, rd.unlimited ? "()" : "(unlimited=false)")
 
 end # os-test
 
