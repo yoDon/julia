@@ -3403,12 +3403,12 @@ macro code_typed1(ex0...)
 end
 
 @testset "compilation annotations" begin
-    m = Module()
+    M = Module()
 
     dispatchonly = Any[sin, muladd, "foo", nothing, Dict]   # untyped container can cause excessive runtime dispatch
     withinfernce = tuple(sin, muladd, "foo", nothing, Dict) # typed container can cause excessive inference
 
-    @eval m begin
+    @eval M begin
         function invokef(f, itr)
             local r = 0
             r += f(itr[1])
@@ -3426,7 +3426,7 @@ end
     end
 
     @testset "@nospecialize" begin
-        @eval m begin
+        @eval M begin
             function nospecialize(@nospecialize a)
                 c = isa(a, Function)
                 inline_checker(c)
@@ -3439,23 +3439,23 @@ end
         end
 
         # `@nospecialize` should suppress runtime dispatches of `nospecialize`
-        m.invokef(m.nospecialize, dispatchonly)
-        @test count_specialization(m.nospecialize) == 1
+        M.invokef(M.nospecialize, dispatchonly)
+        @test count_specialization(M.nospecialize) == 1
         # `@nospecialize` should allow inference to happen
-        m.invokef(m.nospecialize, withinfernce)
-        @test count_specialization(m.nospecialize) == 6
-        @test !any(m.is_inline_checker, @code_typed1 m.invokef(m.nospecialize, dispatchonly))
+        M.invokef(M.nospecialize, withinfernce)
+        @test count_specialization(M.nospecialize) == 6
+        @test !any(M.is_inline_checker, @code_typed1 M.invokef(M.nospecialize, dispatchonly))
 
         # `@nospecialize` should allow inlinining
-        m.invokef(m.inline_nospecialize, dispatchonly)
-        @test count_specialization(m.inline_nospecialize) == 1
-        m.invokef(m.inline_nospecialize, withinfernce)
-        @test count_specialization(m.inline_nospecialize) == 6
-        @test any(m.is_inline_checker, @code_typed1 m.invokef(m.inline_nospecialize, dispatchonly))
+        M.invokef(M.inline_nospecialize, dispatchonly)
+        @test count_specialization(M.inline_nospecialize) == 1
+        M.invokef(M.inline_nospecialize, withinfernce)
+        @test count_specialization(M.inline_nospecialize) == 6
+        @test any(M.is_inline_checker, @code_typed1 M.invokef(M.inline_nospecialize, dispatchonly))
     end
 
     @testset "@noinfer" begin
-        @eval m begin
+        @eval M begin
             Base.@noinfer function noinfer(@nospecialize a)
                 c = isa(a, Function)
                 inline_checker(c)
@@ -3469,19 +3469,19 @@ end
         end
 
         # `@nospecialize` should suppress runtime dispatches of `nospecialize`
-        m.invokef(m.noinfer, dispatchonly)
-        @test count_specialization(m.noinfer) == 1
+        M.invokef(M.noinfer, dispatchonly)
+        @test count_specialization(M.noinfer) == 1
         # `@noinfer` suppresses inference also
-        m.invokef(m.noinfer, withinfernce)
-        @test count_specialization(m.noinfer) == 1
-        @test !any(m.is_inline_checker, @code_typed1 m.invokef(m.noinfer, dispatchonly))
+        M.invokef(M.noinfer, withinfernce)
+        @test count_specialization(M.noinfer) == 1
+        @test !any(M.is_inline_checker, @code_typed1 M.invokef(M.noinfer, dispatchonly))
 
         # `@noinfer` should still allow inlinining
-        m.invokef(m.inline_noinfer, dispatchonly)
-        @test count_specialization(m.inline_noinfer) == 1
-        m.invokef(m.inline_noinfer, withinfernce)
-        @test count_specialization(m.inline_noinfer) == 1
-        @test any(m.is_inline_checker, @code_typed1 m.invokef(m.inline_noinfer, dispatchonly))
+        M.invokef(M.inline_noinfer, dispatchonly)
+        @test count_specialization(M.inline_noinfer) == 1
+        M.invokef(M.inline_noinfer, withinfernce)
+        @test count_specialization(M.inline_noinfer) == 1
+        @test any(M.is_inline_checker, @code_typed1 M.invokef(M.inline_noinfer, dispatchonly))
     end
 end
 

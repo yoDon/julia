@@ -108,13 +108,13 @@ CodeInfo(
 1 ─ %1 = invoke Main.g(_2::AbstractArray)::Float64
 └──      return %1
 ) => Float64
-```julia
+```
 
 Here, the `@nospecialize` annotation results in the equivalent of
 
 ```julia
 f(A::AbstractArray) = invoke(g, Tuple{AbstractArray}, A)
-```julia
+```
 
 ensuring that only one version of native code will be generated for `g`,
 one that is generic for any `AbstractArray`.

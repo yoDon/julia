@@ -299,7 +299,7 @@ This can be used to limit the number of compiler-generated specializations durin
 julia> f(A::AbstractArray) = g(A)
 f (generic function with 1 method)
 
-julia> @noinline @noinfer g(@nospecialize(A::AbstractArray)) = A[1]
+julia> @noinline Base.@noinfer g(@nospecialize(A::AbstractArray)) = A[1]
 g (generic function with 1 method)
 
 julia> @code_typed f([1.0])
@@ -307,7 +307,7 @@ CodeInfo(
 1 ─ %1 = invoke Main.g(_2::AbstractArray)::Any
 └──      return %1
 ) => Any
-```julia
+```
 
 In this example, `f` will be inferred for each specific type of `A`,
 but `g` will only be inferred once.
