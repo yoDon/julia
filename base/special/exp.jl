@@ -228,7 +228,7 @@ end
 @inline function exp_impl_fast(x::Float64, base)
     T = Float64
     N_float = muladd(x, LogBo256INV(base, T), MAGIC_ROUND_CONST(T))
-    N = reinterpret(UInt64, N_float) % Int32
+    N = min(Int32(1024), reinterpret(UInt64, N_float) % Int32)
     N_float -=  MAGIC_ROUND_CONST(T) #N_float now equals round(x*LogBo256INV(base, T))
     r = muladd(N_float, LogBo256U(base, T), x)
     r = muladd(N_float, LogBo256L(base, T), r)
@@ -242,7 +242,7 @@ end
 @inline function exp_impl(x::Float32, base)
     T = Float32
     N_float = round(x*LogBINV(base, T))
-    N = unsafe_trunc(Int32, N_float)
+    N = min(Int32(128), unsafe_trunc(Int32, N_float))
     r = muladd(N_float, LogBU(base, T), x)
     r = muladd(N_float, LogBL(base, T), r)
     small_part = expb_kernel(base, r)
