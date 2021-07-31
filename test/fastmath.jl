@@ -102,7 +102,6 @@ end
     for T in (Float16, Float32, Float64, BigFloat)
         half = 1/convert(T,2)
         third = 1/convert(T,3)
-
         for f in (:+, :-, :abs, :abs2, :conj, :inv, :sign,
                   :acos, :asin, :asinh, :atan, :atanh, :cbrt, :cos, :cosh,
                   :exp10, :exp2, :exp, :log10, :log1p,
@@ -112,6 +111,9 @@ end
                 @test @fastmath($f($half)) ≈ $f($half)
                 @test @fastmath($f($third)) ≈ $f($third)
             end
+        end
+        for f in (:exp2, :exp, :exp10) # Test that big numbers aren't too broken.
+            @test @fastmath($f(T(3000))) ≈ $f(T(3000))
         end
         if T != Float16
             for f in (:expm1,)
