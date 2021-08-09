@@ -79,7 +79,6 @@ lock(f, c::GenericCondition) = lock(f, c.lock)
 
 # have waiter wait for c
 function _wait2(c::GenericCondition, waiter::Task)
-    ct = current_task()
     assert_havelock(c)
     push!(c.waitq, waiter)
     return
