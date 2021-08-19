@@ -254,10 +254,12 @@ end
 macro noinline() Expr(:meta, :noinline) end
 
 """
-    @pure ex
-    @pure(ex)
+    Base.@pure function f(args...)
+        ...
+    end
+    Base.@pure f(args...) = ...
 
-`@pure` gives the compiler a hint for the definition of a pure function,
+`Base.@pure` gives the compiler a hint for the definition of a pure function,
 helping for type inference.
 
 This macro is intended for internal compiler use and may be subject to changes.
@@ -267,16 +269,35 @@ macro pure(ex)
 end
 
 """
-    @aggressive_constprop ex
-    @aggressive_constprop(ex)
+    Base.@aggressive_constprop function f(args...)
+        ...
+    end
+    Base.@aggressive_constprop f(args...) = ...
 
-`@aggressive_constprop` requests more aggressive interprocedural constant
+`Base.@aggressive_constprop` requests more aggressive interprocedural constant
 propagation for the annotated function. For a method where the return type
 depends on the value of the arguments, this can yield improved inference results
 at the cost of additional compile time.
 """
 macro aggressive_constprop(ex)
     esc(isa(ex, Expr) ? pushmeta!(ex, :aggressive_constprop) : ex)
+end
+
+"""
+    Base.@noinfer function f(args...)
+        @nospecialize ...
+        ...
+    end
+    Base.@noinfer f(@nospecialize args...) = ...
+
+Tells the compiler to infer `f` only with the precisely the declared types of arguments.
+It can eliminate a latency problem due to excessive inference that can happen when the
+compiler sees a considerable complexity of argument types during inference.
+Note that this macro only has effect when used together with [`@nospecialize`](@ref),
+and the effect is only applied to `@nospecialize`d arguments.
+"""
+macro noinfer(ex)
+    esc(isa(ex, Expr) ? pushmeta!(ex, :noinfer) : ex)
 end
 
 """

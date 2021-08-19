@@ -56,7 +56,6 @@ end
 Applied to a function argument name, hints to the compiler that the method
 should not be specialized for different types of that argument,
 but instead to use precisely the declared type for each argument.
-This is only a hint for avoiding excess code generation.
 Can be applied to an argument within a formal argument list,
 or in the function body.
 When applied to an argument, the macro must wrap the entire argument expression.
@@ -87,6 +86,14 @@ end
 f(y) = [x for x in y]
 @specialize
 ```
+
+!!! note
+    This is only a hint for the compiler to avoid excess code generation by suppressing
+    dispatches with complex runtime types of the annotated arguments.
+    Note that `@nospecialize` doesn't intervene into inference, and thus it doens't
+    eliminate any latency due to inference that may happen when the compiler sees complex
+    types that can be known statically. Use [`Base.@noinfer`](@ref) together with
+    `@nospecialize` also in order to suppress excess inference for such a case.
 """
 macro nospecialize(vars...)
     if nfields(vars) === 1
