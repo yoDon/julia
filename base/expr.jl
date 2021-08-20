@@ -290,7 +290,7 @@ end
     end
     Base.@noinfer f(@nospecialize args...) = ...
 
-Tells the compiler to infer `f` only with the precisely the declared types of arguments.
+Tells the compiler to infer `f` only with the precisely declared types of arguments.
 It can eliminate a latency problem due to excessive inference that can happen when the
 compiler sees a considerable complexity of argument types during inference.
 Note that this macro only has effect when used together with [`@nospecialize`](@ref),
