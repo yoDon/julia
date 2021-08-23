@@ -56,7 +56,7 @@ end
 Applied to a function argument name, hints to the compiler that the method
 implementation should not be specialized for different types of that argument,
 but instead use the declared type for that argument.
-Can be applied to an argument within a formal argument list,
+It can be applied to an argument within a formal argument list,
 or in the function body.
 When applied to an argument, the macro must wrap the entire argument expression.
 When used in a function body, the macro must occur in statement position and
