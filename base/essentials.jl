@@ -89,12 +89,37 @@ f(y) = [x for x in y]
 ```
 
 !!! note
-    This is only a hint for the compiler to avoid excess code generation by suppressing
-    dispatches with complex runtime types of the annotated arguments.
-    Note that `@nospecialize` doesn't intervene into inference, and thus it doens't
-    eliminate any latency due to inference that may happen when the compiler sees complex
-    types that can be known statically. Use [`Base.@noinfer`](@ref) together with
-    `@nospecialize` also in order to suppress excess inference for such a case.
+    `@nospecialize` affects code generation but not inference: it limits the diversity
+    of the resulting native code, but it does not impose any limitations (beyond the
+    standard ones) on type-inference. Use [`Base.@noinfer`](@ref) together with
+    `@nospecialize` to additionally suppress inference.
+
+# Example
+
+```julia
+julia> f(A::AbstractArray) = g(A)
+f (generic function with 1 method)
+
+julia> @noinline g(@nospecialize(A::AbstractArray)) = A[1]
+g (generic function with 1 method)
+
+julia> @code_typed f([1.0])
+CodeInfo(
+1 ─ %1 = invoke Main.g(_2::AbstractArray)::Float64
+└──      return %1
+) => Float64
+```julia
+
+Here, the `@nospecialize` annotation results in the equivalent of
+
+```julia
+f(A::AbstractArray) = invoke(g, Tuple{AbstractArray}, A)
+```julia
+
+ensuring that only one version of native code will be generated for `g`,
+one that is generic for any `AbstractArray`.
+However, the specific return type is still inferred for both `g` and `f`,
+and this is still used in optimizing the callers of `f` and `g`.
 """
 macro nospecialize(vars...)
     if nfields(vars) === 1
