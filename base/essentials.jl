@@ -58,7 +58,8 @@ implementation should not be specialized for different types of that argument,
 but instead use the declared type for that argument.
 It can be applied to an argument within a formal argument list,
 or in the function body.
-When applied to an argument, the macro must wrap the entire argument expression.
+When applied to an argument, the macro must wrap the entire argument expression, e.g.,
+`@nospecialize(x::Real)` or `@nospecialize(i::Integer...)` rather than wrapping just the argument name.
 When used in a function body, the macro must occur in statement position and
 before any code.
 
