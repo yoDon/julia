@@ -122,7 +122,7 @@ julia> chnl = Channel{Char}(1, spawn=true) do ch
                put!(ch, c)
            end
        end
-Channel{Char}(1) (1 item available)
+Channel{Char}(1) (2 items available)
 
 julia> String(collect(chnl))
 "hello world"
@@ -184,6 +184,7 @@ function close(c::Channel, excp::Exception=closed_exception())
     lock(c)
     try
         c.state = :closed
+        @atomic :monotonic c.length = 0
         c.excp = excp
         notify_error(c.cond_take, excp)
         notify_error(c.cond_wait, excp)

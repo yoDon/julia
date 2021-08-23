@@ -578,3 +578,39 @@ let c = Channel(3)
     close(c)
     @test repr(MIME("text/plain"), c) == "Channel{Any}(3) (closed)"
 end
+
+# PR #41833 - length(c)
+@testset "length(::Channel)" begin
+    # Buffered: length() = buffer length + number of waiting tasks
+    let c = Channel(2)
+        @test length(c) == 0;   put!(c, 0)
+        @test length(c) == 1;   put!(c, 0)
+        @test length(c) == 2;   yield(@task put!(c, 0))
+        @test length(c) == 3;   yield(@task put!(c, 0))
+        @test length(c) == 4
+        # Test length(c) after interrupting a task waiting on the channel
+                                t = @task put!(c, 0)
+                                yield(t)
+        @test length(c) == 5
+                                @async Base.throwto(t, ErrorException("Exit put!"))
+                                try wait(t) catch end
+        @test length(c) == 4
+                                close(c)
+        @test length(c) == 0
+    end
+    # Unbuffered: length() = number of waiting tasks
+    let c = Channel()
+        @test length(c) == 0;   yield(@task put!(c, 0))
+        @test length(c) == 1;   yield(@task put!(c, 0))
+        @test length(c) == 2
+        # Test length(c) after interrupting a task waiting on the channel
+                                t = @task put!(c, 0)
+                                yield(t)
+        @test length(c) == 3
+                                @async Base.throwto(t, ErrorException("Exit put!"))
+                                try wait(t) catch end
+        @test length(c) == 2
+                                close(c)
+        @test length(c) == 0
+    end
+end
