@@ -184,7 +184,6 @@ function close(c::Channel, excp::Exception=closed_exception())
     lock(c)
     try
         c.state = :closed
-        @atomic :monotonic c.length = 0
         c.excp = excp
         notify_error(c.cond_take, excp)
         notify_error(c.cond_wait, excp)

@@ -595,8 +595,8 @@ end
                                 @async Base.throwto(t, ErrorException("Exit put!"))
                                 try wait(t) catch end
         @test length(c) == 4
-                                close(c)
-        @test length(c) == 0
+                                close(c); yield()
+        @test length(c) == 2    # Already-buffered items remain
     end
     # Unbuffered: length() = number of waiting tasks
     let c = Channel()
@@ -610,7 +610,7 @@ end
                                 @async Base.throwto(t, ErrorException("Exit put!"))
                                 try wait(t) catch end
         @test length(c) == 2
-                                close(c)
+                                close(c); yield()
         @test length(c) == 0
     end
 end
