@@ -290,11 +290,27 @@ end
     end
     Base.@noinfer f(@nospecialize args...) = ...
 
-Tells the compiler to infer `f` only with the precisely declared types of arguments.
-It can eliminate a latency problem due to excessive inference that can happen when the
-compiler sees a considerable complexity of argument types during inference.
-Note that this macro only has effect when used together with [`@nospecialize`](@ref),
-and the effect is only applied to `@nospecialize`d arguments.
+Tells the compiler to infer `f` using the declared types of `@nospecialize`d arguments.
+This can be used to limit the number of compiler-generated specializations during inference.
+
+# Example
+
+```julia
+julia> f(A::AbstractArray) = g(A)
+f (generic function with 1 method)
+
+julia> @noinline @noinfer g(@nospecialize(A::AbstractArray)) = A[1]
+g (generic function with 1 method)
+
+julia> @code_typed f([1.0])
+CodeInfo(
+1 ─ %1 = invoke Main.g(_2::AbstractArray)::Any
+└──      return %1
+) => Any
+```julia
+
+In this example, `f` will be inferred for each specific type of `A`,
+but `g` will only be inferred once.
 """
 macro noinfer(ex)
     esc(isa(ex, Expr) ? pushmeta!(ex, :noinfer) : ex)
