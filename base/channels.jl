@@ -437,9 +437,9 @@ immediately, does not block.
 For unbuffered channels returns `true` if there are tasks waiting
 on a [`put!`](@ref).
 """
-isready(c::Channel) = length(c) > 0
-isempty(c::Channel) = length(c) == 0
-function length(c::Channel)
+isready(c::Channel) = n_avail(c) > 0
+isempty(c::Channel) = n_avail(c) == 0
+function n_avail(c::Channel)
     # Lock-free equivalent to `length(c.data) + length(c.cond_put.waitq)`
     @atomic :monotonic c.length
 end
@@ -473,7 +473,7 @@ function show(io::IO, ::MIME"text/plain", c::Channel)
         if !isopen(c)
             print(io, " (closed)")
         else
-            n = length(c)
+            n = n_avail(c)
             if n == 0
                 print(io, " (empty)")
             else
