@@ -527,8 +527,8 @@ endif
 $(eval $(call LLVM_PATCH,llvm-invalid-addrspacecast-sink)) # Still being upstreamed as D92210
 $(eval $(call LLVM_PATCH,llvm-11-D93154-globalisel-as))
 $(eval $(call LLVM_PATCH,llvm-11-D94813-mergeicmps)) # remove for LLVM 14
-# $(eval $(call LLVM_PROJ_PATCH,llvm-11-AArch64-FastIsel-bug))
-# $(eval $(call LLVM_PATCH,llvm-12-D97435-AArch64-movaddrreg))
+$(eval $(call LLVM_PROJ_PATCH,llvm-13-AArch64-FastIsel-bug))
+$(eval $(call LLVM_PATCH,llvm-13-D97435-AArch64-movaddrreg))
 endif # LLVM_VER 13.0
 
 # Add a JL prefix to the version map. DO NOT REMOVE
