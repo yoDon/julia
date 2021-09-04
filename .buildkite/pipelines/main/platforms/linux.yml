@@ -61,8 +61,8 @@ steps:
           persist_depot_dirs: packages,artifacts,compiled
           version: 1.6
       - staticfloat/sandbox#v1:
-          rootfs_url: https://github.com/JuliaCI/rootfs-images/releases/download/$ROOTFS_TEST_TREE/package_linux.${ROOTFS_ARCH}.tar.gz
-          rootfs_treehash: "$ROOTFS_TEST_TREE"
+          rootfs_url: https://github.com/JuliaCI/rootfs-images/releases/download/$ROOTFS_PACK_TAG/package_linux.${ROOTFS_ARCH}.tar.gz
+          rootfs_treehash: "$ROOTFS_PACK_TREE"
           uid: 1000
           gid: 1000
           workspaces:
@@ -83,19 +83,19 @@ steps:
       echo "The Julia directory name will be: $$JULIA_DIRECTORY_NAME"
 
       echo "--- Download build artifacts"
-      # rm -rf $$ARTIFACT_FILENAME
-      # buildkite-agent artifact download $$ARTIFACT_FILENAME .
+      rm -rf $$ARTIFACT_FILENAME
+      buildkite-agent artifact download $$ARTIFACT_FILENAME .
 
       echo "--- Extract build artifacts"
-      # rm -rf $$JULIA_DIRECTORY_NAME/
-      # tar xzf $$ARTIFACT_FILENAME $$JULIA_DIRECTORY_NAME/
+      rm -rf $$JULIA_DIRECTORY_NAME/
+      tar xzf $$ARTIFACT_FILENAME $$JULIA_DIRECTORY_NAME/
 
       echo "--- Print Julia version info"
-      # $$JULIA_DIRECTORY_NAME/bin/julia -e 'using InteractiveUtils; InteractiveUtils.versioninfo()'
+      $$JULIA_DIRECTORY_NAME/bin/julia -e 'using InteractiveUtils; InteractiveUtils.versioninfo()'
 
       echo "--- Run the Julia test suite"
-      # unset JULIA_DEPOT_PATH
-      # $$JULIA_DIRECTORY_NAME/bin/julia .buildkite/utilities/rr/rr_capture.jl $$JULIA_DIRECTORY_NAME/bin/julia -e 'Base.runtests(["all"]; ncores = Sys.CPU_THREADS)'
+      unset JULIA_DEPOT_PATH
+      $$JULIA_DIRECTORY_NAME/bin/julia .buildkite/utilities/rr/rr_capture.jl $$JULIA_DIRECTORY_NAME/bin/julia -e 'Base.runtests(["all"]; ncores = Sys.CPU_THREADS)'
     timeout_in_minutes: 150
     notify:
       - github_commit_status:
